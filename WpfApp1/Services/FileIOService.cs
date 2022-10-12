@@ -31,6 +31,10 @@ namespace WpfApp1.Services
             using (var stream = File.OpenText(path))
             {
                 var filetext = stream.ReadToEnd();
+                if(filetext == null || String.IsNullOrEmpty(filetext))
+                {
+                    return new BindingList<ToDoModel>();
+                }
                 return JsonConvert.DeserializeObject<BindingList<ToDoModel>>(filetext);
             }
         }
@@ -39,8 +43,9 @@ namespace WpfApp1.Services
         {
             using (StreamWriter writer = File.CreateText(path))
             {
-                string output = JsonConvert.SerializeObject(_toDoDataList);
-                writer.Write(output);
+                string outputToDo = JsonConvert.SerializeObject(_toDoDataList);
+                writer.Write(outputToDo);
+
             }
         }
     }

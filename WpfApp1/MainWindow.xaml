@@ -7,12 +7,27 @@
         mc:Ignorable="d"
         Title="ToDo" Height="450" Width="800" Loaded="Window_Loaded">
     <Grid>
-        <DataGrid x:Name="dgToDoList" FontSize="16" FontWeight="Bold" Margin="10" AutoGenerateColumns="False">
+        <Grid.RowDefinitions>
+            <RowDefinition></RowDefinition>
+            <RowDefinition></RowDefinition>
+            <RowDefinition Height="40"></RowDefinition>
+        </Grid.RowDefinitions>
+        <DataGrid Grid.Row="0" x:Name="dgToDoList" FontSize="16" FontWeight="Bold" Margin="10" AutoGenerateColumns="False" CanUserAddRows="False">
             <DataGrid.Columns>
                 <DataGridTextColumn Binding="{Binding Path = CreationDate}" IsReadOnly="True" Header="CreationDate" Width="180"></DataGridTextColumn>
                 <DataGridCheckBoxColumn Binding="{Binding Path = IsDone, UpdateSourceTrigger=PropertyChanged}" Header="Done" Width="180"></DataGridCheckBoxColumn>
                 <DataGridTextColumn Binding="{Binding Path = Text}" Header="Task" Width="*"></DataGridTextColumn>
             </DataGrid.Columns>
         </DataGrid>
+
+        <DataGrid Grid.Row="1" x:Name="DoneList" FontSize="16" FontWeight="Bold" Margin="10" AutoGenerateColumns="False" CanUserAddRows="False">
+            <DataGrid.Columns>
+                <DataGridTextColumn Binding="{Binding Path = CreationDate}" IsReadOnly="True" Header="CreationDate" Width="180"></DataGridTextColumn>
+                <DataGridCheckBoxColumn Binding="{Binding Path = IsDone, UpdateSourceTrigger=PropertyChanged}" Header="Done" Width="180"></DataGridCheckBoxColumn>
+                <DataGridTextColumn Binding="{Binding Path = Text}" IsReadOnly="True" Header="Task" Width="*"></DataGridTextColumn>
+            </DataGrid.Columns>
+        </DataGrid>
+        <TextBox Name="txtBox" Grid.Row="2" Height="30" Width="500" KeyUp="TextBox_KeyUp" />
+        <Label Content="Введите текст" HorizontalAlignment="Center" Margin="0, 0, 650, 0"  Grid.Row="2" VerticalAlignment="Center" Height="30" Width="90"/>
     </Grid>
 </Window>

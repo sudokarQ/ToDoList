@@ -27,8 +27,11 @@ namespace WpfApp1
     public partial class MainWindow : Window
     {
         private readonly string path = $"{Environment.CurrentDirectory}\\todoDataList.json";
+        private readonly string pathDone = $"{Environment.CurrentDirectory}\\doneList.json";
         BindingList<ToDoModel> _toDoDataList;
-        private FileIOService _fileIOService;
+        BindingList<ToDoModel> _DoneList;
+        private FileIOService _fileIOServiceToDo;
+        private FileIOService _fileIOServiceDone;
 
         public MainWindow()
         {
@@ -38,11 +41,13 @@ namespace WpfApp1
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            _fileIOService = new FileIOService(path);
+            _fileIOServiceToDo = new FileIOService(path);
+            _fileIOServiceDone = new FileIOService(pathDone);
 
             try
             {
-                _toDoDataList = _fileIOService.LoadData();
+                _toDoDataList = _fileIOServiceToDo.LoadData();
+                _DoneList = _fileIOServiceDone.LoadData();
             }
             catch (Exception ex)
             {
@@ -52,6 +57,36 @@ namespace WpfApp1
 
             dgToDoList.ItemsSource = _toDoDataList;
             _toDoDataList.ListChanged += _toDoDataList_ListChanged;
+            DoneList.ItemsSource = _DoneList;
+            _DoneList.ListChanged += _DoneList_ListChanged;
+        }
+
+        private void _DoneList_ListChanged(object? sender, ListChangedEventArgs e)
+        {
+            if (e.ListChangedType == ListChangedType.ItemAdded || e.ListChangedType == ListChangedType.ItemDeleted
+                || e.ListChangedType == ListChangedType.ItemChanged)
+            {
+                if (e.ListChangedType == ListChangedType.ItemChanged)
+                {
+                    for (int i = 0; i < _DoneList.Count; i++)
+                    {
+                        if (!_DoneList[i].IsDone)
+                        {
+                            _toDoDataList.Add(_DoneList[i]);
+                            _DoneList.RemoveAt(i);
+                        }
+                    }
+                }
+                try
+                {
+                    _fileIOServiceDone.SaveData(sender as BindingList<ToDoModel>);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.Message);
+                    this.Close();
+                }
+            }
         }
 
         private void _toDoDataList_ListChanged(object? sender, ListChangedEventArgs e)
@@ -59,15 +94,36 @@ namespace WpfApp1
             if (e.ListChangedType == ListChangedType.ItemAdded || e.ListChangedType == ListChangedType.ItemDeleted
                 || e.ListChangedType == ListChangedType.ItemChanged)
             {
+
+                if (e.ListChangedType == ListChangedType.ItemChanged)
+                {
+                    for (int i = 0; i < _toDoDataList.Count; i++)
+                    {
+                        if (_toDoDataList[i].IsDone)
+                        {
+                            _DoneList.Add(_toDoDataList[i]);
+                            _toDoDataList.RemoveAt(i);
+                        }
+                    }
+                }
                 try
                 {
-                    _fileIOService.SaveData(sender as BindingList<ToDoModel>);
+                    _fileIOServiceToDo.SaveData(sender as BindingList<ToDoModel>);
                 }
                 catch (Exception ex)
                 {
                     MessageBox.Show(ex.Message);
                     this.Close();
                 }
+            }
+        }
+
+        private void TextBox_KeyUp(object sender, KeyEventArgs e)
+        {
+            if(e.Key == Key.Enter)
+            {
+                _toDoDataList.Add(new ToDoModel() { Text = txtBox.Text });
+                txtBox.Text = "";
             }
         }
     }
